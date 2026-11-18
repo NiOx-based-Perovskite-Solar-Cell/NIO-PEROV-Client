@@ -1,0 +1,28 @@
+# รันแยก:  docker compose up -d --build   (ใน folder nio-perov-client)
+# ต้องมี network:  docker network create nio-perov-net
+# NEXT_PUBLIC_* ถูกฝังตอน build -> อ่านจาก nio-perov-client/.env (แก้แล้วต้อง --build ใหม่)
+
+services:
+
+  nio-perov-client:
+    container_name: nio-perov-client
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # browser เรียก API ตรง จึงต้องเป็น URL ที่เครื่อง client เข้าถึงได้
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:4200}
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-/v1}
+        NEXT_PUBLIC_GOOGLE_ANALYTICS: ${NEXT_PUBLIC_GOOGLE_ANALYTICS:-}
+    restart: unless-stopped
+    ports:
+      - "4100:4100"
+    environment:
+      TZ: Asia/Bangkok
+    networks:
+      - nio-perov-net
+
+networks:
+  nio-perov-net:
+    name: nio-perov-net
+    external: true
